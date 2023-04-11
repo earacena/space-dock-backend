@@ -12,6 +12,7 @@ from docker.models.images import Image
 package_install_commands: dict[str, str] = {
     "code-server": "apt-get install -y curl && curl -fsSL https://code-server.dev/install.sh | sh",
     "npm:install": "npm install",
+    "npm:build": "npm run build",
     "npm:ci": "npm ci",
 }
 
@@ -19,15 +20,17 @@ def clone_git_repo(git_repo_link: str, repo_name: str) -> str:
     """ Clone git repo and return folder path.
     """ 
     folder_path = "repos/{}".format(repo_name)
-    result = subprocess.run(["git", "clone", git_repo_link, folder_path], capture_output=True, encoding="utf-8")
-    
-    output = result.stdout
-    output_list = output.split('\n')
-    
-    for line in output_list:
-      print(line)
+
+    result = subprocess.run(["git", "clone", git_repo_link, folder_path], capture_output=True, text=True, check=True)
+    print("\n", result.stderr)
     
     return folder_path
+
+def open_vscode_in_container() -> None:
+  """ Use VsCode commandline option folder-uri to connect to container.
+      Note: Requires Dev - Containers extension
+  """
+  pass
 
 class Docker:
     """ Wrapper class for Docker operations
@@ -47,7 +50,7 @@ class Docker:
           file.write("FROM {}\n".format(base_image))
         
           # Set working directory for container
-          file.write("WORKDIR /usr/src/app\n")
+          file.write("WORKDIR app/\n")
         
           # Move repository files
           file.write("COPY . .\n")
@@ -75,11 +78,9 @@ class Docker:
         
     def build_image(self, dockerfile_path: str, tag: str) -> Image:
         print("Building image...")
-        os.makedirs('dockerfiles/', exist_ok=True)
         
         (image, logs) = self.client.images.build(
             path=dockerfile_path,
-            tag=tag,
         )
 
         print("".join(log['stream'] for log in logs if 'stream' in log))
@@ -89,9 +90,12 @@ class Docker:
 
     def launch_container(self, image: str, commands: list[str] = None) -> Container:
         print("Lauching container with image '{}'...".format(image))
-        container = self.client.containers.run(image, detach=True)
+        container = self.client.containers.run(image, ports = {8080: 8080}, detach=True)
 
-        print(container.logs())
+        logs = container.logs()
+        for line in logs:
+          line = line.decode(encoding="utf-8").strip('\n')
+          print(line)
 
         # for command in commands:
         #   (_, output) = container.exec_run(command)
@@ -119,15 +123,14 @@ def main():
     d = Docker()
     repo_path = clone_git_repo(args.repo, repo_name)
     d.create_dockerfile(
-        base_image="node:latest",
-        update_command="apt-get update",
+        base_image="node:current-alpine",
+        update_command="apk update",
         packages=[
-            "code-server",
             "npm:ci",
             "npm:build"
         ],
         git_repo_dir=repo_path,
-        start_command="npm start"
+        start_command="npm run dev"
     )
     image = d.build_image("repos/{}".format(repo_name), repo_name)
     container = d.launch_container(image.short_id)
