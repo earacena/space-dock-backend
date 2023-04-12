@@ -11,9 +11,12 @@ from docker.models.images import Image
 
 package_install_commands: dict[str, str] = {
     "code-server": "apt-get install -y curl && curl -fsSL https://code-server.dev/install.sh | sh",
+    "gnupg": "apk add gnupg",
+    "git": "apk add git",
     "npm:install": "npm install",
     "npm:build": "npm run build",
     "npm:ci": "npm ci",
+    
 }
 
 def clone_git_repo(git_repo_link: str, repo_name: str) -> str:
@@ -22,15 +25,17 @@ def clone_git_repo(git_repo_link: str, repo_name: str) -> str:
     folder_path = "repos/{}".format(repo_name)
 
     result = subprocess.run(["git", "clone", git_repo_link, folder_path], capture_output=True, text=True, check=True)
-    print("\n", result.stderr)
+    print("\n{}".format(result.stderr))
     
     return folder_path
 
-def open_vscode_in_container() -> None:
+def open_vscode_in_container(repo_id: str) -> None:
   """ Use VsCode commandline option folder-uri to connect to container.
       Note: Requires Dev - Containers extension
   """
-  pass
+  subprocess.run(["code", "--folder-uri", "vscode-remote://attached-container+{}/app".format(repo_id.encode('utf-8').hex())])
+  return
+  
 
 class Docker:
     """ Wrapper class for Docker operations
@@ -92,6 +97,9 @@ class Docker:
         print("Lauching container with image '{}'...".format(image))
         container = self.client.containers.run(image, ports = {8080: 8080}, detach=True)
 
+        # Open vscode connected to container inside main directory for project
+        open_vscode_in_container(container.short_id)
+
         logs = container.logs()
         for line in logs:
           line = line.decode(encoding="utf-8").strip('\n')
@@ -127,7 +135,9 @@ def main():
         update_command="apk update",
         packages=[
             "npm:ci",
-            "npm:build"
+            "npm:build",
+            "git",
+            "gnupg"
         ],
         git_repo_dir=repo_path,
         start_command="npm run dev"
