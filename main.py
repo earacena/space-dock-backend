@@ -9,8 +9,8 @@ from io import TextIOWrapper
 from docker.models.containers import Container
 from docker.models.images import Image
 
+# Install commands are based on Alpine Linux package manager (apk)
 package_install_commands: dict[str, str] = {
-    "code-server": "apt-get install -y curl && curl -fsSL https://code-server.dev/install.sh | sh",
     "gnupg": "apk add gnupg",
     "git": "apk add git",
     "npm:install": "npm install",
