@@ -1,13 +1,13 @@
-import docker
 import os
 import subprocess
 import string
 import argparse
 import uuid
-from io import StringIO
-from io import TextIOWrapper
+import docker
 from docker.models.containers import Container
 from docker.models.images import Image
+from io import StringIO
+from io import TextIOWrapper
 
 # Install commands are based on Alpine Linux package manager (apk)
 package_install_commands: dict[str, str] = {
@@ -117,12 +117,12 @@ class Docker:
         return container_ids
 
 
-def main():
+if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        prog='space-dock',
-        description='A Python application that spins up and manages docker containers.'
+        prog='docker_ops',
+        description='A Python wrapper for Docker SDK that spins up and manages docker containers.'
     )
-    parser.add_argument('repo')
+    parser.add_argument('git-repository-link')
 
     args = parser.parse_args()
 
@@ -144,5 +144,3 @@ def main():
     )
     image = d.build_image("repos/{}".format(repo_name), repo_name)
     container = d.launch_container(image.short_id)
-    
-main()
