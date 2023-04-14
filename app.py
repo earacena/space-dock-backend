@@ -38,13 +38,17 @@ def create_image() -> dict[str, str]:
     "packages": env_packages,
   }
 
-@app.route("/create-image")
-def create_image():
-  pass
+@app.route("/create-container/<image_short_id>", methods=["POST"])
+def create_container(image_short_id: str):
+  # Launch container
+  container = d.launch_container(image_short_id)
   
-@app.route("/create-container")
-def create_container():
-  pass
+  # Return response including relevant container information
+  return {
+    "container_id": container.id,
+    "contaienr_short_id": container.short_id,
+    "container_name": container.name,
+  }
 
 @app.route("/fetch-containers")
 def fetch_containers():
