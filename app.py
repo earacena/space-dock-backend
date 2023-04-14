@@ -12,6 +12,9 @@ def create_image() -> dict[str, str]:
   data = request.json
   git_repo_link = data['git_repo_link']
   env_info = data['env_info']
+  data = request.json
+  git_repo_link = data['git_repo_link']
+  env_info = data['env_info']
   
   # Clone repository locally
   repo_id = uuid.uuid4()
@@ -28,6 +31,7 @@ def create_image() -> dict[str, str]:
   
   d.create_dockerfile(
     base_image=env_info["base_image"],
+    update_command=env_info["update_command"],
     update_command=env_info["update_command"],
     packages=env_packages,
     git_repo_dir=repo_path,
