@@ -9,18 +9,28 @@ d = docker_ops.Docker()
 @app.route("/create-image", methods=['POST'])
 def create_image() -> dict[str, str]:
   # Read git repository link and environment info from body of POST request
-  git_repo_link = request.form['git_repo_link']
-  env_info = request.form['env_info']
+  data = request.json
+  git_repo_link = data['git_repo_link']
+  env_info = data['env_info']
   
   # Clone repository locally
   repo_id = uuid.uuid4()
   repo_path = docker_ops.clone_git_repo(git_repo_link, repo_id)
   
   # Create image using given environment info
-  env_packages = env_info["build_command"] + env_info["packages"] + ["git"] + "gnupg"
+  env_packages = [
+    env_info["build_command"],
+    "git",
+    "gnupg"
+  ]
+  
+  env_packages += env_info["packages"]
+  
+  print(env_packages)
+  
   d.create_dockerfile(
     base_image=env_info["base_image"],
-    update_command="apk update",
+    update_command=env_info["update_command"],
     packages=env_packages,
     git_repo_dir=repo_path,
     start_command=env_info["start_command"]
