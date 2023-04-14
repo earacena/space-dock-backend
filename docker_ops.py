@@ -97,17 +97,30 @@ class Docker:
         print("Lauching container with image '{}'...".format(image))
         container = self.client.containers.run(image, ports = {8080: 8080}, detach=True)
 
-        # Open vscode connected to container inside main directory for project
-        open_vscode_in_container(container.short_id)
-
-        logs = container.logs()
-        for line in logs:
-          line = line.decode(encoding="utf-8").strip('\n')
-          print(line)
-
         # for command in commands:
         #   (_, output) = container.exec_run(command)
         #   print(output)
+
+        return container
+
+
+    def retrieve_container_logs(self, container: Container) -> list[str]:
+      """ Gets containers logs and decodes them into a list of strings.
+      """
+      logs = container.logs()
+      decoded: list[str] = []
+      for line in logs:
+        line = line.decode(encoding="utf-8").strip('\n')
+        decoded.append(line)
+        
+      return decoded
+      
+
+    def generate_vscode_connection_uri(self, container: Container) -> str:
+      """ Creates the URI string needed to connect VsCode to container.
+      """
+      container_id_hex = container.short_id.encode('utf-8').hex()
+      return "vscode-remote://attached-container+{}/app".format(container_id_hex)
 
     def list_active_containers(self) -> list[str]:
         container_ids: list[str] = []
@@ -144,3 +157,6 @@ if __name__ == '__main__':
     )
     image = d.build_image("repos/{}".format(repo_name), repo_name)
     container = d.launch_container(image.short_id)
+    
+    for log in d.retrieve_container_logs(container):
+      print(log)
