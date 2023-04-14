@@ -12,9 +12,6 @@ def create_image() -> dict[str, str]:
   data = request.json
   git_repo_link = data['git_repo_link']
   env_info = data['env_info']
-  data = request.json
-  git_repo_link = data['git_repo_link']
-  env_info = data['env_info']
   
   # Clone repository locally
   repo_id = uuid.uuid4()
@@ -60,6 +57,7 @@ def create_container(image_short_id: str):
     "container_id": container.id,
     "contaienr_short_id": container.short_id,
     "container_name": container.name,
+    "vscode_uri": d.generate_vscode_connection_uri(container)
   }
 
 @app.route("/fetch-containers")
