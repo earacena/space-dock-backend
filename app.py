@@ -70,9 +70,17 @@ def fetch_container_logs(container_short_id: str):
 def fetch_containers():
   pass
 
-@app.route("/fetch-container-info/<id>")
-def fetch_container_info(id: str):
-  pass
+@app.route("/fetch-container-info/<container_id>")
+def fetch_container_info(container_id: str):
+  container = d.client.containers.get(container_id)
+  
+  # Return relevant container info
+  return {
+    "container_id": container.id,
+    "container_short_id": container.short_id,
+    "container_name": container.name,
+    "vscode_uri": d.generate_vscode_connection_uri(container)
+  }
 
 @app.route("/fetch-image-info/<id>")
 def fetch_image_info(id: str):
