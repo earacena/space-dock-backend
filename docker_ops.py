@@ -16,7 +16,6 @@ package_install_commands: dict[str, str] = {
     "npm:install": "npm install",
     "npm:build": "npm run build",
     "npm:ci": "npm ci",
-    
 }
 
 def clone_git_repo(git_repo_link: str, repo_name: str) -> str:
@@ -43,7 +42,7 @@ class Docker:
     def __init__(self):
         self.client = docker.from_env()
 
-    def create_dockerfile(self, base_image: str, update_command: str, packages: list[str], git_repo_dir: str, start_command: str) -> str:
+    def create_dockerfile(self, base_image: str, update_command: str, packages: list[str], git_repo_dir: str, build_command: str, start_command: str) -> str:
         """ Generates a dockerfile and returns the created file path.
         """
         print("Generating Dockerfile:")
@@ -72,6 +71,9 @@ class Docker:
                       package_install_commands[package]))
         
           file.write("\n")
+
+          # Run build command
+          file.write("RUN {}\n".format(build_command))
 
           # Start command
           print(" * Start command: {}".format(start_command))
@@ -145,14 +147,13 @@ if __name__ == '__main__':
     repo_path = clone_git_repo(args.repo, repo_name)
     d.create_dockerfile(
         base_image="node:current-alpine",
+        git_repo_dir=repo_path,
         update_command="apk update",
         packages=[
-            "npm:ci",
-            "npm:build",
             "git",
             "gnupg"
         ],
-        git_repo_dir=repo_path,
+        build_command="npm ci;npm build",
         start_command="npm run dev"
     )
     image = d.build_image("repos/{}".format(repo_name), repo_name)
