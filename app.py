@@ -60,6 +60,12 @@ def create_container(image_short_id: str):
     "vscode_uri": d.generate_vscode_connection_uri(container)
   }
 
+@app.route("/fetch-container-logs/<container_short_id>", methods=["GET"])
+def fetch_container_logs(container_short_id: str):
+  # Return a generator stream for container logs
+  container = d.client.containers.get(container_short_id)
+  return container.logs(stream=True)
+
 @app.route("/fetch-containers")
 def fetch_containers():
   pass
