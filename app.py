@@ -17,21 +17,21 @@ def create_image() -> dict[str, str]:
   repo_id = uuid.uuid4()
   repo_path = docker_ops.clone_git_repo(git_repo_link, repo_id)
   
-  # Create dockerfile using given environment info
+  # Create dockerfile using given environment info and essentials
   env_packages = [
-    env_info["build_command"],
     "git",
     "gnupg"
   ]
  
   env_packages += env_info["packages"]
   
+  # Generate dockerfile
   d.create_dockerfile(
     base_image=env_info["base_image"],
-    update_command=env_info["update_command"],
+    git_repo_dir=repo_path,
     update_command=env_info["update_command"],
     packages=env_packages,
-    git_repo_dir=repo_path,
+    build_command=env_info["build_command"],
     start_command=env_info["start_command"]
   )
   
@@ -55,7 +55,7 @@ def create_container(image_short_id: str):
   # Return response including relevant container information
   return {
     "container_id": container.id,
-    "contaienr_short_id": container.short_id,
+    "container_short_id": container.short_id,
     "container_name": container.name,
     "vscode_uri": d.generate_vscode_connection_uri(container)
   }
