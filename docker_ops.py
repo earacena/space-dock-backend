@@ -41,6 +41,7 @@ class Docker:
     """
     def __init__(self):
         self.client = docker.from_env()
+        self.image_build_logs = {}
 
     def create_dockerfile(self, base_image: str, update_command: str, packages: list[str], git_repo_dir: str, build_command: str, start_command: str) -> str:
         """ Generates a dockerfile and returns the created file path.
@@ -90,7 +91,8 @@ class Docker:
             path=dockerfile_path,
         )
 
-        print("".join(log['stream'] for log in logs if 'stream' in log))
+        # Store image build logs
+        self.image_build_logs[image.short_id] = logs
 
         print("Done.\n")
         return image
