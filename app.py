@@ -66,6 +66,12 @@ def fetch_container_logs(container_short_id: str):
   container = d.client.containers.get(container_short_id)
   return container.logs(stream=True)
 
+@app.route("/fetch-image-logs/<image_short_id>", methods=["GET"])
+def fetch_image_logs(image_short_id: str):
+  # Return a generator stream for image logs
+  image = d.client.images.get(image_short_id)
+  return image.logs(stream=True)
+
 @app.route("/fetch-containers")
 def fetch_containers():
   pass
