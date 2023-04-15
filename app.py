@@ -71,18 +71,16 @@ def fetch_image_logs(image_short_id: str):
   # Return a generator stream for image logs
   image = d.client.images.get(image_short_id)
 
-  def generate(image) -> list[str]:
-    logs = []
-    for log in d.image_build_logs[image.short_id]:
-      # Remove extra newlines
-      if 'stream' in log and log['stream'] != "\n":
-        logs.append(log['stream'])
+  logs = []
+  for log in d.image_build_logs[image.short_id]:
+    # Remove extra newlines
+    if 'stream' in log and log['stream'] != "\n":
+      logs.append(log['stream'])
 
-    return {
-      "logs": logs
-    }
+  return {
+    "logs": logs
+  }
 
-  return generate(image)
 
 @app.route("/fetch-containers")
 def fetch_containers():
