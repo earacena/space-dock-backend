@@ -74,8 +74,8 @@ def fetch_image_logs(image_short_id: str):
   logs = []
   for log in d.image_build_logs[image.short_id]:
     # Remove extra newlines
-    if 'stream' in log and log['stream'] != "\n":
-      logs.append(log['stream'])
+    if "stream" in log and log["stream"] != "\n":
+      logs.append(log['stream'].strip("\n"))
 
   return {
     "logs": logs
