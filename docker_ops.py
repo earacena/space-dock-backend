@@ -89,6 +89,7 @@ class Docker:
         
         (image, logs) = self.client.images.build(
             path=dockerfile_path,
+            tag=tag,
         )
 
         # Store image build logs
@@ -126,12 +127,19 @@ class Docker:
       container_id_hex = container.short_id.encode('utf-8').hex()
       return "vscode-remote://attached-container+{}/app".format(container_id_hex)
 
-    def list_active_containers(self) -> list[str]:
-        container_ids: list[str] = []
-        for container in self.client.containers.list():
-            container_ids.append(container.id)
+    def get_containers_info(self) -> list[str]:
+      """ Retrieve a list containing info of all active containers.
+      """
+      containers_info: dict[str, str] = []
+      
+      for container in self.client.containers.list():
+          containers_info.append({
+            "container_id": container.id,
+            "container_short_id": container.short_id,
+            "container_image": container.attrs['Config']['Image'],
+          })
 
-        return container_ids
+      return containers_info
 
 
 if __name__ == '__main__':
