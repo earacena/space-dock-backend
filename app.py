@@ -6,7 +6,7 @@ from flask import Flask, request
 app = Flask(__name__)
 d = docker_ops.Docker()
 
-@app.route("/create-image", methods=['POST'])
+@app.route("/create/image", methods=['POST'])
 def create_image() -> dict[str, str]:
   """ Creates an image
   """
@@ -49,11 +49,10 @@ def create_image() -> dict[str, str]:
     "packages": env_packages,
   }
 
-@app.route("/create-container/<image_short_id>", methods=["POST"])
+@app.route("/create/container/<image_short_id>", methods=["POST"])
 def create_container(image_short_id: str):
   """ Creates a container
   """
-  
   # Launch container
   container = d.launch_container(image_short_id)
   
@@ -65,7 +64,7 @@ def create_container(image_short_id: str):
     "vscode_uri": d.generate_vscode_connection_uri(container)
   }
 
-@app.route("/fetch-container-logs/<container_short_id>", methods=["GET"])
+@app.route("/fetch/container/logs/<container_short_id>", methods=["GET"])
 def fetch_container_logs(container_short_id: str):
   """ Gets a container's logs
   """
@@ -74,7 +73,7 @@ def fetch_container_logs(container_short_id: str):
   container = d.client.containers.get(container_short_id)
   return container.logs(stream=True)
 
-@app.route("/fetch-image-logs/<image_short_id>", methods=["GET"])
+@app.route("/fetch/image/logs/<image_short_id>", methods=["GET"])
 def fetch_image_logs(image_short_id: str):
   """ Gets image build logs
   """
@@ -91,13 +90,13 @@ def fetch_image_logs(image_short_id: str):
   }
 
 
-@app.route("/fetch-containers-info", methods=["GET"])
+@app.route("/fetch/containers/info/all", methods=["GET"])
 def fetch_containers():
   """ Gets info for all containers
   """
   return d.get_containers_info()
 
-@app.route("/fetch-container-info/<container_id>", methods=["GET"])
+@app.route("/fetch/container/info/<container_id>", methods=["GET"])
 def fetch_container_info(container_id: str):
   """ Gets info for a container with an id of 'container_id'
   """
@@ -111,7 +110,7 @@ def fetch_container_info(container_id: str):
     "vscode_uri": d.generate_vscode_connection_uri(container)
   }
 
-@app.route("/fetch-image-info/<id>", methods=["GET"])
+@app.route("/fetch/image/info/<id>", methods=["GET"])
 def fetch_image_info(id: str):
   """ Gets info for image
   """
