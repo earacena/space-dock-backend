@@ -8,6 +8,8 @@ d = docker_ops.Docker()
 
 @app.route("/create-image", methods=['POST'])
 def create_image() -> dict[str, str]:
+  """ Creates an image
+  """
   # Read git repository link and environment info from body of POST request
   data = request.json
   git_repo_link = data['git_repo_link']
@@ -49,6 +51,9 @@ def create_image() -> dict[str, str]:
 
 @app.route("/create-container/<image_short_id>", methods=["POST"])
 def create_container(image_short_id: str):
+  """ Creates a container
+  """
+  
   # Launch container
   container = d.launch_container(image_short_id)
   
@@ -62,13 +67,17 @@ def create_container(image_short_id: str):
 
 @app.route("/fetch-container-logs/<container_short_id>", methods=["GET"])
 def fetch_container_logs(container_short_id: str):
+  """ Gets a container's logs
+  """
+  
   # Return a generator stream for container logs
   container = d.client.containers.get(container_short_id)
   return container.logs(stream=True)
 
 @app.route("/fetch-image-logs/<image_short_id>", methods=["GET"])
 def fetch_image_logs(image_short_id: str):
-  # Return a generator stream for image logs
+  """ Gets image build logs
+  """
   image = d.client.images.get(image_short_id)
 
   logs = []
@@ -82,12 +91,16 @@ def fetch_image_logs(image_short_id: str):
   }
 
 
-@app.route("/fetch-containers")
+@app.route("/fetch-containers-info", methods=["GET"])
 def fetch_containers():
-  pass
+  """ Gets info for all containers
+  """
+  return d.get_containers_info()
 
-@app.route("/fetch-container-info/<container_id>")
+@app.route("/fetch-container-info/<container_id>", methods=["GET"])
 def fetch_container_info(container_id: str):
+  """ Gets info for a container with an id of 'container_id'
+  """
   container = d.client.containers.get(container_id)
   
   # Return relevant container info
@@ -98,8 +111,10 @@ def fetch_container_info(container_id: str):
     "vscode_uri": d.generate_vscode_connection_uri(container)
   }
 
-@app.route("/fetch-image-info/<id>")
+@app.route("/fetch-image-info/<id>", methods=["GET"])
 def fetch_image_info(id: str):
+  """ Gets info for image
+  """
   pass
 
 if __name__ == "__main__":
