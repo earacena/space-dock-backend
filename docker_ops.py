@@ -132,11 +132,14 @@ class Docker:
       """
       containers_info: dict[str, str] = []
       
-      for container in self.client.containers.list():
+      for container in self.client.containers.list(all=True):
           containers_info.append({
-            "container_id": container.id,
-            "container_short_id": container.short_id,
-            "container_image": container.attrs['Config']['Image'],
+            "containerId": container.id,
+            "containerShortId": container.short_id,
+            "containerName": container.name,
+            "containerImage": container.attrs['Config']['Image'],
+            "containerStatus": container.status
+            "vscodeUri": self.generate_vscode_connection_uri(container)
           })
 
       return containers_info
