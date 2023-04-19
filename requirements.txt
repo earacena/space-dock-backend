@@ -74,6 +74,7 @@ filelock==3.9.0
 fixtures==4.0.1
 flake8==6.0.0
 Flask==2.2.3
+Flask-Cors==3.0.10
 flufl.bounce==4.0
 flufl.i18n==4.1.1
 flufl.lock==7.1.1
