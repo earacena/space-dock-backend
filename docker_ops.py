@@ -167,14 +167,13 @@ class Docker:
     def get_images_info(self) -> dict[str, str]:
         """ Retrieve a list containing info of images.
             Each entry in list will include:
-              containerId: str
-              containerShortId: str
-              containerName: str
-              containerImage: str
-              containerStatus: str
-              vscodeUri: str
+              image_id: str
+              image_short_id: str,
+              repo_id: str,
+              base_image: str,
+              packages: list[str],
         """
-        pass
+        return [info for _, info in d.image_info.items()]
 
 
 if __name__ == '__main__':
