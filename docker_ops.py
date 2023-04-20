@@ -138,7 +138,7 @@ class Docker:
             "containerShortId": container.short_id,
             "containerName": container.name,
             "containerImage": container.attrs['Config']['Image'],
-            "containerStatus": container.status
+            "containerStatus": container.status,
             "vscodeUri": self.generate_vscode_connection_uri(container)
           })
 
