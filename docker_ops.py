@@ -100,7 +100,12 @@ class Docker:
 
     def launch_container(self, image: str, commands: list[str] = None) -> Container:
         print("Lauching container with image '{}'...".format(image))
-        container = self.client.containers.run(image, ports = {8080: 8080}, detach=True)
+        container = self.client.containers.run(
+          image,
+          labels={ "manager": "space-dock" },
+          ports = {8080: 8080},
+          detach=True
+        )
 
         # for command in commands:
         #   (_, output) = container.exec_run(command)
@@ -132,7 +137,7 @@ class Docker:
       """
       containers_info: dict[str, str] = []
       
-      for container in self.client.containers.list(all=True):
+      for container in self.client.containers.list(all=True, filters={ "label": "manager=space-dock" }):
           containers_info.append({
             "containerId": container.id,
             "containerShortId": container.short_id,
