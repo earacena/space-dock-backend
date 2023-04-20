@@ -40,6 +40,15 @@ def create_image() -> dict[str, str]:
   
   # Build image
   image = d.build_image("repos/{}".format(repo_id), repo_id)
+ 
+  # Store image info
+  d.image_info[image.id] = {
+    "image_id": image.id,
+    "image_short_id": image.short_id,
+    "repo_id": repo_id,
+    "base_image": env_info["base_image"],
+    "packages": env_packages,
+  }
   
   # Send image info as response
   return jsonify({
