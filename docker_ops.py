@@ -138,7 +138,7 @@ class Docker:
         """ Creates the URI string needed to connect VsCode to container.
         """
         container_id_hex = container.short_id.encode('utf-8').hex()
-        return "vscode-remote://attached-container+{}/app".format(container_id_hex)
+        return "vscode://vscode-remote/attached-container+{}/app".format(container_id_hex)
 
     def get_containers_info(self) -> list[dict[str, str]]:
         """ Retrieve a list containing info of all active containers.
