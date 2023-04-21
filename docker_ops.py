@@ -173,7 +173,7 @@ class Docker:
               base_image: str,
               packages: list[str],
         """
-        return [info for _, info in d.image_info.items()]
+        return [info for _, info in self.image_info.items()]
 
 
 if __name__ == '__main__':
