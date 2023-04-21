@@ -52,10 +52,10 @@ def create_image() -> dict[str, str]:
   
   # Send image info as response
   return jsonify({
-    "image_id": image.id,
-    "image_short_id": image.short_id,
-    "repo_id": repo_id,
-    "base_image": env_info["base_image"],
+    "imageId": image.id,
+    "imageShortId": image.short_id,
+    "repoId": repo_id,
+    "baseImage": env_info["base_image"],
     "packages": env_packages,
   })
 
@@ -100,7 +100,7 @@ def fetch_image_logs(image_short_id: str):
   })
 
 
-@app.route("/fetch/containers/info/all", methods=["GET"])
+@app.route("/fetch/container/info/all", methods=["GET"])
 def fetch_containers():
   """ Gets list containing info for all containers started by space-dock.
   """
@@ -123,10 +123,12 @@ def fetch_container_info(container_id: str):
   })
 
 @app.route("/fetch/image/info/all", methods=["GET"])
-def fetch_all_images_info(id: str):
+def fetch_all_images_info():
   """ Gets list containing info for all images started by space-dock.
   """
-  return jsonify(d.get_images_info())
+  return jsonify({
+    "images": d.get_images_info(),
+  })
 
 if __name__ == "__main__":
   app.run()
