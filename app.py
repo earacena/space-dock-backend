@@ -43,10 +43,10 @@ def create_image() -> dict[str, str]:
  
   # Store image info
   d.image_info[image.id] = {
-    "image_id": image.id,
-    "image_short_id": image.short_id,
-    "repo_id": repo_id,
-    "base_image": env_info["base_image"],
+    "imageId": image.id,
+    "imageShortId": image.short_id,
+    "repoId": repo_id,
+    "baseImage": env_info["base_image"],
     "packages": env_packages,
   }
   
