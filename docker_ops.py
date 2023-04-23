@@ -175,7 +175,7 @@ class Docker:
             "imageShortId": image.short_id,
             "repoName": image.tags[0],
             "imageTags": image.tags
-        }  for image in self.client.images.list(all=True, filters={ "labels": "manager=space-dock" })]
+        }  for image in self.client.images.list(all=True, filters={ "label": "manager=space-dock" })]
 
 
 if __name__ == '__main__':
