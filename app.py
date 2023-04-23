@@ -18,7 +18,7 @@ def create_image() -> dict[str, str]:
   
   # Clone repository locally
   repo_id = uuid.uuid4()
-  repo_path = docker_ops.clone_git_repo(git_repo_link, repo_id)
+  repo_path, repo_name, repo_id = docker_ops.clone_git_repo(git_repo_link, repo_id)
   
   # Create dockerfile using given environment info and essentials
   env_packages = [
@@ -39,24 +39,14 @@ def create_image() -> dict[str, str]:
   )
   
   # Build image
-  image = d.build_image("repos/{}".format(repo_id), repo_id)
- 
-  # Store image info
-  d.image_info[image.id] = {
-    "imageId": image.id,
-    "imageShortId": image.short_id,
-    "repoId": repo_id,
-    "baseImage": env_info["base_image"],
-    "packages": env_packages,
-  }
+  image = d.build_image("repos/{}".format(repo_id), repo_name)
   
   # Send image info as response
   return jsonify({
     "imageId": image.id,
     "imageShortId": image.short_id,
-    "repoId": repo_id,
-    "baseImage": env_info["base_image"],
-    "packages": env_packages,
+    "repoName": image.tags[0],
+    "imageTags": image.tags
   })
 
 @app.route("/create/container/<image_short_id>", methods=["POST"])

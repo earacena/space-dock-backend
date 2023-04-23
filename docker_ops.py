@@ -19,17 +19,16 @@ package_install_commands: dict[str, str] = {
 }
 
 
-def clone_git_repo(git_repo_link: str, repo_name: str) -> str:
+def clone_git_repo(git_repo_link: str, repo_id: str)-> tuple[str, str]:
     """ Clone git repo and return folder path.
     """
-    folder_path = "repos/{}".format(repo_name)
+    folder_path = "repos/{}".format(repo_id)
 
     result = subprocess.run(["git", "clone", git_repo_link,
                             folder_path], capture_output=True, text=True, check=True)
     print("\n{}".format(result.stderr))
 
-    return folder_path
-
+    return folder_path, git_repo_link.strip("/").split("/")[-1], repo_id
 
 def open_vscode_in_container(repo_id: str) -> None:
     """ Use VsCode commandline option folder-uri to connect to container.
@@ -39,7 +38,6 @@ def open_vscode_in_container(repo_id: str) -> None:
                    "vscode-remote://attached-container+{}/app".format(repo_id.encode('utf-8').hex())])
     return
 
-
 class Docker:
     """ Wrapper class for Docker operations
     """
@@ -48,10 +46,10 @@ class Docker:
         self.client = docker.from_env()
 
         # Storage for image build logs
-        self.image_build_logs = {}
+        self.image_build_logs: dict[str, str] = {}
 
-        # Storage for image info
-        self.image_info = {}
+        # # Storage for image info
+        # self.image_info = {}
 
     def create_dockerfile(self, base_image: str, update_command: str, packages: list[str], git_repo_dir: str, build_command: str, start_command: str) -> str:
         """ Generates a dockerfile and returns the created file path.
@@ -100,6 +98,7 @@ class Docker:
         (image, logs) = self.client.images.build(
             path=dockerfile_path,
             tag=tag,
+            labels={"manager": "space-dock"}
         )
 
         # Store image build logs
@@ -169,11 +168,14 @@ class Docker:
             Each entry in list will include:
               image_id: str
               image_short_id: str,
-              repo_id: str,
-              base_image: str,
-              packages: list[str],
+              repo_name: str,
         """
-        return [info for _, info in self.image_info.items()]
+        return [{
+            "imageId": image.id,
+            "imageShortId": image.short_id,
+            "repoName": image.tags[0],
+            "imageTags": image.tags
+        }  for image in self.client.images.list(all=True, filters={ "labels": "manager=space-dock" })]
 
 
 if __name__ == '__main__':
@@ -185,10 +187,10 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    repo_name = uuid.uuid4()
+    repo_id = uuid.uuid4()
 
     d = Docker()
-    repo_path = clone_git_repo(args.repo, repo_name)
+    repo_path, repo_name = clone_git_repo(args.repo,repo_id)
     d.create_dockerfile(
         base_image="node:current-alpine",
         git_repo_dir=repo_path,
