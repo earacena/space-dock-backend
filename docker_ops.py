@@ -173,7 +173,7 @@ class Docker:
         return [{
             "imageId": image.id,
             "imageShortId": image.short_id,
-            "repoName": image.tags[0],
+            "repoName": image.tags[0] if image.tags else "no repo name supplied",
             "imageTags": image.tags
         }  for image in self.client.images.list(all=True, filters={ "label": "manager=space-dock" })]
 
