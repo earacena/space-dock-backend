@@ -1,5 +1,6 @@
 import docker_ops
 import uuid
+import shutil
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
@@ -40,7 +41,13 @@ def create_image() -> dict[str, str]:
   
   # Build image
   image = d.build_image("repos/{}".format(repo_id), repo_name)
-  
+
+  # Remove repo after building
+  try:
+    shutil.rmtree("repos/{}".format(repo_id))
+  except OSError as e:
+    print("[Error]: ", e)
+
   # Send image info as response
   return jsonify({
     "imageId": image.id,
