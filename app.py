@@ -13,8 +13,8 @@ def create_image() -> dict[str, str]:
   """
   # Read git repository link and environment info from body of POST request
   data = request.json
-  git_repo_link = data['git_repo_link']
-  env_info = data['env_info']
+  git_repo_link = data['gitRepositoryLink']
+  env_info = data['envInfo']
   
   # Clone repository locally
   repo_id = uuid.uuid4()
@@ -30,12 +30,12 @@ def create_image() -> dict[str, str]:
   
   # Generate dockerfile
   d.create_dockerfile(
-    base_image=env_info["base_image"],
+    base_image=env_info["baseImage"],
     git_repo_dir=repo_path,
-    update_command=env_info["update_command"],
+    update_command=env_info["updateCommand"],
     packages=env_packages,
-    build_command=env_info["build_command"],
-    start_command=env_info["start_command"]
+    build_command=env_info["buildCommand"],
+    start_command=env_info["startCommand"]
   )
   
   # Build image
@@ -106,10 +106,10 @@ def fetch_container_info(container_id: str):
   
   # Return relevant container info
   return jsonify({
-    "container_id": container.id,
-    "container_short_id": container.short_id,
-    "container_name": container.name,
-    "vscode_uri": d.generate_vscode_connection_uri(container)
+    "containerId": container.id,
+    "containerShortId": container.short_id,
+    "containerName": container.name,
+    "vscodeUri": d.generate_vscode_connection_uri(container)
   })
 
 @app.route("/fetch/image/info/all", methods=["GET"])
